@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitHub Copilot instructions for Electron repo
 
-## Getting Started
+Short, actionable guidance so an AI dev agent can be productive immediately.
 
-First, run the development server:
+## Big picture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- This is a small Next.js (App Router) TypeScript app (see `app/layout.tsx` and `app/page.tsx`) that implements a grid-based puzzle game.
+- UI is in `src/components` (main game pieces under `src/components/Game` and start screen under `src/components/StartScreen`).
+- Game rules and pure logic live under `src/game` (`engine.ts`, `conditions.ts`, `types.ts`, `levels.ts`). Treat these as the source of truth for rules and state transitions.
+- App-level state uses Zustand in `src/store/useGameStore.ts`. Keep UI components thin and move logic to `src/game` where possible.
+- `src/lib/supabase.ts` creates a client that expects `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (client-side keys) — the app reads a `leaderboard` table with `{ name, score }`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Important developer workflows
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Local dev: `npm run dev` (Next dev server on port 3000)
+- Build: `npm run build` and `npm start`
+- Lint: `npm run lint` (ESLint)
+- No tests present — add tests under `src/__tests__` if you introduce logic that requires coverage.
+- Deploy: follow standard Next.js deployment (Vercel recommended in `README.md`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Patterns & conventions (project-specific)
 
-## Learn More
+- "use client": many components are client components (interactive Game UI). Server components are rare; default to client for interactive UI.
+- Game state separation: keep pure logic in `src/game` (pure functions) and mutable/runtime state in `src/store/useGameStore.ts`.
+  - Example: `checkCondition` in `src/game/conditions.ts` is intentionally pure and side-effect free; reuse it in tests.
+- Program model: `ProgramNode` union is defined in `src/game/engine.ts` and used across UI and engine. When changing actions, update:
+  - `src/game/engine.ts` (execution logic)
+  - `src/game/types.ts` (if you add new type aliases used in other parts)
+  - `src/components/Game/actionIcons.ts` and UI pickers (e.g. `ActionBar.tsx`) to reflect icons/UI for new actions.
+- Player state naming mismatch: `src/game/engine.ts` uses `carrying: boolean`, while `src/game/types.ts` uses `carryingData: boolean`. Be careful when changing or extending player state fields — standardize names if you modify related code.
 
-To learn more about Next.js, take a look at the following resources:
+## Integration & external dependencies
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Supabase: `src/lib/supabase.ts` (requires env vars). The leaderboard expects `leaderboard` table rows with `name` and `score`.
+- `gsap` is included for animations, `tailwindcss` for styling; keep component classes idiomatic Tailwind.
+- State library: `zustand` (single-store pattern in `useGameStore.ts`). Use selectors and setter functions defined there.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Example tasks & where to edit
 
-## Deploy on Vercel
+- Add a new primitive action (e.g., `jump`):
+  1. Add action to `PrimitiveAction` union in `src/game/engine.ts` and handle in `executePrimitive`.
+  2. Add icon and picker button in `src/components/Game/actionIcons.ts` and `ActionBar.tsx`.
+  3. Update `src/game/types.ts` if you expose the new action in types shared elsewhere.
+- Change level layout or add levels: edit `src/game/levels.ts`, update tests or game expectations.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What not to assume
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- No test harness or CI configured by default. Don't assume lint rules enforce project style beyond `eslint` present.
+- Supabase env vars are required for leaderboard runtime. Local dev without them will cause client runtime errors when `Leaderboard` mounts.
+
+---
+
+If anything here is incomplete or you want more agent-focused automation (e.g., PR templates, code mod hints, tests to assert game rules), say what to prioritize and I will iterate.
