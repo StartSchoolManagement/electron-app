@@ -84,7 +84,7 @@ export default function Controls() {
             onInstruction: (idx) => setExecutingIndex(idx),
             speed,
             shouldContinue: () => useGameStore.getState().running,
-            onTrace: (m) => console.log('[ui-run]', m),
+            onTrace: (m) => { if (process.env.NODE_ENV === 'development') console.log('[ui-run]', m) },
           })
 
           setRunning(false)

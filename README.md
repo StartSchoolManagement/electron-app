@@ -1,8 +1,64 @@
-# GitHub Copilot instructions for Electron repo
+# Electron
 
-Short, actionable guidance so an AI dev agent can be productive immediately.
+A grid-based programming puzzle game built with Next.js and TypeScript.
 
-## Big picture
+## About
+
+Electron is an educational puzzle game where players program an "electron" to navigate through circuit-like grids. Players create sequences of instructions (forward, turn, pickup, putdown) to guide the electron, collect data, and deliver it to target locations. The game teaches programming concepts like loops and conditionals in a fun, visual way.
+
+## How to Play
+
+1. **Start the game** - Select a level from the start screen
+2. **Build your program** - Use the action bar to add instructions:
+   - **Forward** - Move one cell in the current direction
+   - **Left/Right** - Turn 90 degrees
+   - **Pickup** - Collect data from a data cell
+   - **Putdown** - Place data on an empty target
+   - **Loop** - Repeat your program from the beginning
+   - **IF conditions** - Execute actions only when conditions are met
+3. **Run your program** - Press Run to watch your electron execute the instructions
+4. **Win condition** - Deliver all data to the target cells to complete the level
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+npm start
+
+# Run linter
+npm run lint
+
+# Run tests
+npm test -- run
+```
+
+## Environment Setup
+
+Copy `.env.example` to `.env.local` and configure your Supabase credentials for the leaderboard feature.
+
+## Documentation
+
+For more detailed information, see these documentation files:
+
+| File                                   | Description                                   |
+| -------------------------------------- | --------------------------------------------- |
+| [SUPABASE_SETUP.md](SUPABASE_SETUP.md) | How to configure Supabase for the leaderboard |
+| [test.md](test.md)                     | How to run tests and level element reference  |
+| [GameFlow.md](GameFlow.md)             | Game flow and mechanics                       |
+| [Files.md](Files.md)                   | Project file structure                        |
+| [Report01.md](Report01.md)             | Development report #1                         |
+| [Report02.md](Report02.md)             | Development report #2                         |
+
+---
+
+## Developer Notes
 
 - This is a small Next.js (App Router) TypeScript app (see `app/layout.tsx` and `app/page.tsx`) that implements a grid-based puzzle game.
 - UI is in `src/components` (main game pieces under `src/components/Game` and start screen under `src/components/StartScreen`).
@@ -15,8 +71,8 @@ Short, actionable guidance so an AI dev agent can be productive immediately.
 - Local dev: `npm run dev` (Next dev server on port 3000)
 - Build: `npm run build` and `npm start`
 - Lint: `npm run lint` (ESLint)
-- No tests present — add tests under `src/__tests__` if you introduce logic that requires coverage.
-- Deploy: follow standard Next.js deployment (Vercel recommended in `README.md`).
+- Tests: `npm test -- run` (see [test.md](test.md) for details)
+- Deploy: follow standard Next.js deployment (Vercel recommended).
 
 ## Patterns & conventions (project-specific)
 

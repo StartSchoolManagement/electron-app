@@ -1,5 +1,6 @@
 import './globals.css'
 import AppLifecycle from '@/components/AppLifecycle'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 export const metadata = {
   title: 'Electron',
@@ -15,7 +16,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AppLifecycle />
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </body>
     </html>
   )
