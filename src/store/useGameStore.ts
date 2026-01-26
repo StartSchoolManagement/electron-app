@@ -2,7 +2,7 @@
 
 import { create } from 'zustand'
 import { levels } from '@/game/levels'
-import { ProgramNode, PlayerState } from '@/game/engine'
+import { ProgramNode, PlayerState, Grid } from '@/game/types'
 import { supabase } from '@/lib/supabase'
 
 type Screen = 'start' | 'game'
@@ -13,8 +13,8 @@ interface GameState {
 
   program: ProgramNode[]
 
-  grid: string[][]
-  initialGrid: string[][]
+  grid: Grid
+  initialGrid: Grid
   setGrid: (g: string[][]) => void
   setGridCell: (x: number, y: number, v: string) => void
   player: PlayerState
@@ -180,11 +180,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       set({ scoreSubmitted: true })
       // clean pending if present
       localStorage.removeItem('pendingScore')
-    } catch (e) {
+    } catch {
       // if failed, save locally so we can retry on next load
       try {
         localStorage.setItem('pendingScore', JSON.stringify({ name, score: totalScore, ts: Date.now() }))
-      } catch (_) {}
+      } catch { /* localStorage may be unavailable */ }
     }
   },
 
@@ -193,14 +193,14 @@ export const useGameStore = create<GameState>((set, get) => ({
     const raw = localStorage.getItem('pendingScore')
     if (!raw) return
     try {
-      const pending = JSON.parse(raw)
+      const pending = JSON.parse(raw) as { name?: string; score?: number }
       if (!pending?.name || typeof pending?.score !== 'number') return
       const { error } = await supabase.from('leaderboard').insert({ name: pending.name, score: pending.score })
       if (!error) {
         localStorage.removeItem('pendingScore')
         set({ scoreSubmitted: true })
       }
-    } catch (_) {}
+    } catch { /* JSON parse failed or insert failed */ }
   },
 
   // quit out to start screen and add points (set level score to 1 on quit)

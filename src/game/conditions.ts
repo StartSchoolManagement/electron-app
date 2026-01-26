@@ -1,42 +1,31 @@
 // src/game/conditions.ts
+// Single source of truth for condition evaluation logic
 
-export type Condition =
-  | 'onData'
-  | 'onEmpty'
-  | 'carrying'
-  | 'onCorner'
-  | 'onCornerUp'
-  | 'onCornerDown'
-  | 'onCornerLeft'
-  | 'onCornerRight'
+import { Condition, PlayerState, Grid } from './types'
 
-export interface PlayerState {
-  x: number
-  y: number
-  carrying: boolean
-}
-
-export interface Level {
-  layout: string[]
-}
+// Re-export Condition for backward compatibility
+export type { Condition } from './types'
 
 /**
- * Pure condition evaluator.
- * No side effects.
- * No mutation.
- * Always safe.
+ * Pure condition evaluator against a mutable grid.
+ * Used by both sync and async engine execution.
+ * No side effects. No mutation. Always safe.
+ * 
+ * @param condition - Single condition or array of conditions (AND logic)
+ * @param grid - The current grid state (2D string array)
+ * @param player - Current player state
  */
 export function checkCondition(
   condition: Condition | Condition[],
-  level: Level,
+  grid: Grid,
   player: PlayerState
 ): boolean {
   // Support AND of multiple conditions
   if (Array.isArray(condition)) {
-    return condition.every((c) => checkCondition(c, level, player))
+    return condition.every((c) => checkCondition(c, grid, player))
   }
 
-  const tile = level.layout[player.y]?.[player.x] ?? null
+  const tile = grid[player.y]?.[player.x] ?? null
 
   switch (condition) {
     case 'onData':

@@ -32,7 +32,7 @@ export default function AppLifecycle() {
       try {
         const name = localStorage.getItem('playerName') || ''
         localStorage.setItem('pendingScore', JSON.stringify({ name, score: pending, ts: Date.now() }))
-      } catch (_) {}
+      } catch { /* localStorage may be unavailable */ }
     }
 
     window.addEventListener('beforeunload', onBeforeUnload)

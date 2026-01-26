@@ -1,3 +1,24 @@
+// src/game/levels.ts
+// Level definitions for the Electron puzzle game
+
+// 0 - void
+// 1 - vertical lane
+// 2 - corner up-right
+// 3 - corner right-down
+// 4 - corner down-left
+// 5 - corner left-up 
+// 6 - horizontal lane
+// + - Cross lane (for level 10) 
+
+// 7 - start
+// 8 - data
+// 9 - empty data
+
+// A..Z - teleports ( pairs: A->B, B->C, ... Z->A )
+
+
+
+
 import { Level } from './types'
 
 export const levels: Level[] = [
@@ -143,38 +164,6 @@ export const levels: Level[] = [
     '0D00010100',
     '00000C0000',
     ]
-  },{
-    name: 'Level 11',
-    allowedActionsCount: 7,
-    maxActions: 7,
-    maxData: 1,
-    layout: [
-    
-    ]
-  },{
-    name: 'Level 12',
-    allowedActionsCount: 7,
-    maxActions: 7,
-    maxData: 1,
-    layout: [
-    
-    ]
-  },{
-    name: 'Level 13',
-    allowedActionsCount: 7,
-    maxActions: 7,
-    maxData: 1,
-    layout: [
-    
-    ]
-  },{
-    name: 'Level 14',
-    allowedActionsCount: 7,
-    maxActions: 7,
-    maxData: 1,
-    layout: [
-    
-    ]
-  },
+  }
 ]
 

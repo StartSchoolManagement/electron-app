@@ -5,7 +5,7 @@
 
 import { useState } from 'react'
 import { useGameStore } from '@/store/useGameStore'
-import { runProgram } from '@/game/runProgram'
+import { runProgram } from '@/game/engine'
 import { levels } from '@/game/levels'
 
 export default function Controls() {
@@ -61,14 +61,8 @@ export default function Controls() {
       </div>
 
       <button
-        className="
-          w-full sm:w-auto
-          rounded-xl bg-cyan-400
-          px-6 py-3
-          text-xs font-bold uppercase tracking-widest
-          text-slate-950
-          disabled:opacity-50
-        "
+        className=" w-full sm:w-auto rounded-xl bg-cyan-400 px-6 py-3 text-xs font-bold uppercase tracking-widest
+          text-slate-950 disabled:opacity-50"
         disabled={running}
         onClick={async () => {
           setRunning(true)

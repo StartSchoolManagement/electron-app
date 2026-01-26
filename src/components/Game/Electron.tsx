@@ -4,12 +4,13 @@
 
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
+import { Direction } from '@/game/types'
 
 export default function Electron({
   direction,
   carrying,
 }: {
-  direction: 'up' | 'down' | 'left' | 'right'
+  direction: Direction
   carrying: boolean
 }) {
   const glowRef = useRef<HTMLDivElement>(null)
@@ -41,7 +42,7 @@ export default function Electron({
       <div
         ref={glowRef}
         className={`absolute w-6 h-6 blur-lg ${
-          carrying ? 'bg-cyan-400' : 'bg-yellow-300'
+          carrying ? 'bg-cyan-500' : 'bg-yellow-500'
         } opacity-70`}
       />
       <div

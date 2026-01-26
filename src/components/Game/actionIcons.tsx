@@ -1,6 +1,6 @@
-// src/components/Game/actionIcons.ts
+// src/components/Game/actionIcons.tsx
 
-import { ProgramNode } from '@/game/engine'
+import { ProgramNode } from '@/game/types'
 
 import ArrowUp from '@/components/Game/svg/Forward'
 import ArrowLeft from '@/components/Game/svg/ArrowLeft'

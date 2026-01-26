@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '@/store/useGameStore'
 import { levels } from '@/game/levels'
-import { ProgramNode } from '@/game/engine'
-import { Condition } from '@/game/conditions'
+import { ProgramNode, Condition } from '@/game/types'
 import { getNodeIcon } from './actionIcons'
+import PickerButton from './PickerButton'
 
 import ArrowUp from '@/components/Game/svg/Forward'
 import ArrowLeft from '@/components/Game/svg/ArrowLeft'
@@ -164,13 +164,13 @@ export default function ActionBar() {
             >
               {visibleActions.map((item, i) =>
                 item.node.type === 'if' ? (
-                  <PickerBtn
+                  <PickerButton
                     key={i}
                     icon={item.icon}
                     onClick={() => setPicker('if-condition')}
                   />
                 ) : (
-                  <PickerBtn
+                  <PickerButton
                     key={i}
                     icon={item.icon}
                     onClick={() => commitNode(item.node)}
@@ -183,27 +183,27 @@ export default function ActionBar() {
           {/* IF – CONDITION */}
           {picker === 'if-condition' && (
             <div className="flex justify-center gap-3 flex-wrap">
-              <PickerBtn
+              <PickerButton
                 icon={<DataFull />}
                 onClick={() => toggleTempCondition('onData')}
               />
-              <PickerBtn
+              <PickerButton
                 icon={<DataEmpty />}
                 onClick={() => toggleTempCondition('onEmpty')}
               />
-              <PickerBtn
+              <PickerButton
                 icon={<LaneCornerUp />}
                 onClick={() => toggleTempCondition('onCornerUp')}
               />
-              <PickerBtn
+              <PickerButton
                 icon={<LaneCornerRight />}
                 onClick={() => toggleTempCondition('onCornerRight')}
               />
-              <PickerBtn
+              <PickerButton
                 icon={<LaneCornerDown />}
                 onClick={() => toggleTempCondition('onCornerDown')}
               />
-              <PickerBtn
+              <PickerButton
                 icon={<LaneCornerLeft />}
                 onClick={() => toggleTempCondition('onCornerLeft')}
               />
@@ -216,7 +216,7 @@ export default function ActionBar() {
               {tempIfConditions[0]?.startsWith('onCorner') ? (
                 // corners: only allow turning actions
                 <>
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowLeft />}
                     onClick={() =>
                       commitNode({
@@ -226,7 +226,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowRight />}
                     onClick={() =>
                       commitNode({
@@ -240,7 +240,7 @@ export default function ActionBar() {
               ) : tempIfConditions[0] === 'onData' ? (
                 // data: pickup or turn
                 <>
-                  <PickerBtn
+                  <PickerButton
                     icon={<PickUp />}
                     onClick={() =>
                       commitNode({
@@ -250,7 +250,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowLeft />}
                     onClick={() =>
                       commitNode({
@@ -260,7 +260,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowRight />}
                     onClick={() =>
                       commitNode({
@@ -274,7 +274,7 @@ export default function ActionBar() {
               ) : tempIfConditions[0] === 'onEmpty' ? (
                 // empty: putdown or turn
                 <>
-                  <PickerBtn
+                  <PickerButton
                     icon={<PutDown />}
                     onClick={() =>
                       commitNode({
@@ -284,7 +284,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowLeft />}
                     onClick={() =>
                       commitNode({
@@ -294,7 +294,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowRight />}
                     onClick={() =>
                       commitNode({
@@ -308,7 +308,7 @@ export default function ActionBar() {
               ) : (
                 // fallback: full actions
                 <>
-                  <PickerBtn
+                  <PickerButton
                     icon={<PickUp />}
                     onClick={() =>
                       commitNode({
@@ -318,7 +318,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<PutDown />}
                     onClick={() =>
                       commitNode({
@@ -328,7 +328,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowLeft />}
                     onClick={() =>
                       commitNode({
@@ -338,7 +338,7 @@ export default function ActionBar() {
                       })
                     }
                   />
-                  <PickerBtn
+                  <PickerButton
                     icon={<ArrowRight />}
                     onClick={() =>
                       commitNode({
@@ -355,28 +355,5 @@ export default function ActionBar() {
         </div>
       )}
     </div>
-  )
-}
-
-function PickerBtn({
-  icon,
-  onClick,
-}: {
-  icon: React.ReactNode
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="
-        aspect-square w-12
-        rounded-md border border-cyan-400/30
-        hover:bg-cyan-400/20
-        flex items-center justify-center
-        p-2
-      "
-    >
-      <div className="w-full h-full">{icon}</div>
-    </button>
   )
 }
