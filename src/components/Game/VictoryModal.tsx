@@ -1,10 +1,12 @@
 'use client'
 
 import { useGameStore } from '@/store/useGameStore'
+import { levels } from '@/game/levels'
 
 export default function VictoryModal() {
-  const { levelScores, totalScore, nextLevel, quitLevel, clearWin } = useGameStore()
+  const { levelIndex, levelScores, totalScore, nextLevel, quitLevel, clearWin } = useGameStore()
   const last = levelScores[levelScores.length - 1] ?? 0
+  const isLastLevel = levelIndex >= levels.length - 1
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60">
@@ -15,7 +17,8 @@ export default function VictoryModal() {
 
         <div className="flex justify-center gap-6">
           <button
-            className="rounded-2xl bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950"
+            className="rounded-2xl bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLastLevel}
             onClick={() => {
               clearWin()
               nextLevel()

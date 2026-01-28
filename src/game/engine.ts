@@ -49,9 +49,6 @@ export async function runProgram({
   onTrace?: (msg: string) => void
 }): Promise<void> {
   const trace = (m: string) => {
-    if (process.env.NODE_ENV === 'development') {
-      try { console.log('[engine]', m) } catch { /* intentionally ignored */ }
-    }
     if (onTrace) onTrace(m)
   }
 
@@ -164,9 +161,6 @@ export function executeProgram(
   onTrace?: (msg: string) => void
 ): EngineResult {
   const trace = (m: string) => {
-    if (process.env.NODE_ENV === 'development') {
-      try { console.log('[engine]', m) } catch { /* intentionally ignored */ }
-    }
     if (onTrace) onTrace(m)
   }
   
