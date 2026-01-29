@@ -21,6 +21,7 @@ export default function LeaderBoard() {
     const { data } = await supabase
       .from('leaderboard')
       .select('name, score')
+      .gt('score', 0)
       .order('score', { ascending: false })
       .limit(10)
 

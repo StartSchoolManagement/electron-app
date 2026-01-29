@@ -8,11 +8,16 @@ import LeaderBoard from './Leaderboard'
 
 export default function StartScreen() {
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const { resetPlayer, setScreen } = useGameStore()
 
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+  const canStart = name.trim() && isValidEmail
+
   function start() {
-    if (!name.trim()) return
+    if (!canStart) return
     localStorage.setItem('playerName', name.trim())
+    localStorage.setItem('playerEmail', email.trim())
     resetPlayer()
     setScreen('game')
   }
@@ -35,9 +40,18 @@ export default function StartScreen() {
           onChange={(e) => setName(e.target.value)}
         />
 
+        <input
+          className="mb-4 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-center text-sm outline-none focus:border-cyan-400"
+          placeholder="your email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
         <button
           onClick={start}
-          className="mb-6 w-full rounded-xl bg-cyan-400 py-3 text-xs font-bold uppercase tracking-widest text-slate-950"
+          disabled={!canStart}
+          className="mb-6 w-full rounded-xl bg-cyan-400 py-3 text-xs font-bold uppercase tracking-widest text-slate-950 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           start
         </button>

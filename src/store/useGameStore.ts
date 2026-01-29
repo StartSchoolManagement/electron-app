@@ -108,7 +108,13 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   setScreen: (screen) => {
     set({ screen })
-    if (screen === 'game') set({ scoreSubmitted: false })
+    if (screen === 'game') {
+      set({ scoreSubmitted: false })
+      // Clear any old pending score when starting a new game
+      try { localStorage.removeItem('pendingScore') } catch { /* ignore */ }
+      // Start scoring immediately when level loads
+      get().startScoring()
+    }
   },
 
   // ADD (append)
@@ -166,41 +172,55 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   // submit score to leaderboard
   submitScore: async () => {
-    // don't submit twice
+    // don't submit twice - check and set flag immediately to prevent race conditions
     if (get().scoreSubmitted) return
+    set({ scoreSubmitted: true })  // set immediately to block concurrent calls
+    
     if (typeof window === 'undefined') return
 
     const name = localStorage.getItem('playerName')?.trim()
     if (!name) return
 
+    const email = localStorage.getItem('playerEmail')?.trim() || ''
     const { totalScore } = get()
     try {
-      const { error } = await supabase.from('leaderboard').insert({ name, score: totalScore })
+      const { error } = await supabase.from('leaderboard').insert({ name, email, score: totalScore })
       if (error) throw error
-      set({ scoreSubmitted: true })
       // clean pending if present
       localStorage.removeItem('pendingScore')
     } catch {
       // if failed, save locally so we can retry on next load
+      set({ scoreSubmitted: false })  // allow retry
       try {
-        localStorage.setItem('pendingScore', JSON.stringify({ name, score: totalScore, ts: Date.now() }))
+        localStorage.setItem('pendingScore', JSON.stringify({ name, email, score: totalScore, ts: Date.now() }))
       } catch { /* localStorage may be unavailable */ }
     }
   },
 
   submitPending: async () => {
     if (typeof window === 'undefined') return
+    if (get().scoreSubmitted) return
     const raw = localStorage.getItem('pendingScore')
     if (!raw) return
+    
+    set({ scoreSubmitted: true })  // set immediately to block concurrent calls
+    
     try {
-      const pending = JSON.parse(raw) as { name?: string; score?: number }
-      if (!pending?.name || typeof pending?.score !== 'number') return
-      const { error } = await supabase.from('leaderboard').insert({ name: pending.name, score: pending.score })
+      const pending = JSON.parse(raw) as { name?: string; email?: string; score?: number }
+      if (!pending?.name || typeof pending?.score !== 'number') {
+        set({ scoreSubmitted: false })
+        return
+      }
+      const email = pending.email || ''
+      const { error } = await supabase.from('leaderboard').insert({ name: pending.name, email, score: pending.score })
       if (!error) {
         localStorage.removeItem('pendingScore')
-        set({ scoreSubmitted: true })
+      } else {
+        set({ scoreSubmitted: false })  // allow retry
       }
-    } catch { /* JSON parse failed or insert failed */ }
+    } catch {
+      set({ scoreSubmitted: false })  // allow retry
+    }
   },
 
   // quit out to start screen and add points (set level score to 1 on quit)
@@ -237,6 +257,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         currentPoints: 300,
       }
     })
+    // Start scoring immediately when next level loads
+    get().startScoring()
   },
 
   resetProgram: () =>
@@ -261,8 +283,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   setRunning: (running) => {
     set({ running })
     if (!running) set({ executingIndex: null })
-    if (running) get().startScoring()
-    else get().stopScoring()
   },
   setDead: () => set({ running: false, dead: true }),
   setWon: () => {

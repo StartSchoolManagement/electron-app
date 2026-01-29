@@ -31,7 +31,8 @@ export default function AppLifecycle() {
 
       try {
         const name = localStorage.getItem('playerName') || ''
-        localStorage.setItem('pendingScore', JSON.stringify({ name, score: pending, ts: Date.now() }))
+        const email = localStorage.getItem('playerEmail') || ''
+        localStorage.setItem('pendingScore', JSON.stringify({ name, email, score: pending, ts: Date.now() }))
       } catch { /* localStorage may be unavailable */ }
     }
 
