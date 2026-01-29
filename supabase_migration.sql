@@ -7,17 +7,16 @@ create table if not exists public.leaderboard (
 );
 
 
-enable row level security;
+alter table public.leaderboard enable row level security;
 
-READ policy =
-
+-- READ policy
 
 create policy "Allow public read access"
 on public.leaderboard
 for select
 using (true);
 
-WRITE policy
+-- WRITE policy
 
 create policy "Allow public insert"
 on public.leaderboard
