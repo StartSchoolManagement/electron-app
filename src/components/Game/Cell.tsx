@@ -47,7 +47,7 @@ export default function Cell({
         return <DataFull />
       case '9':
         return <DataEmpty />
-      case 'e':
+      case '@':
         return <div className="opacity-50"><DataEmpty /></div>
       case '0':
         return (

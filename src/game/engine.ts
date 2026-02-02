@@ -266,7 +266,7 @@ function executeNode(
   if (node.action === 'pickup') {
     if (grid[y][x] === '8' && !carrying) {
       carrying = true
-      grid[y][x] = 'e'
+      grid[y][x] = '@'
     }
   }
 
@@ -334,7 +334,7 @@ function executePrimitive(
     const tile = grid[state.y]?.[state.x]
     if (tile === '8' && !state.carrying) {
       next.carrying = true
-      grid[state.y][state.x] = 'e'
+      grid[state.y][state.x] = '@'
     }
     return next
   }

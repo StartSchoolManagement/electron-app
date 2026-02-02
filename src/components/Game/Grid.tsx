@@ -12,7 +12,7 @@ export default function Grid() {
 
   return (
     <div
-      className={`grid ${dead ? 'opacity-60' : ''}`}
+      className={`grid ${dead ? 'opacity-60 shake-electric' : ''}`}
       style={{
         gridTemplateColumns: `repeat(${grid[0].length}, ${TILE}px)`,
       }}

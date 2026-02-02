@@ -52,9 +52,11 @@ interface GameState {
 
   resetProgram: () => void
   resetPlayer: () => void
+  resetPlayerOnly: () => void
   setPlayer: (p: PlayerState) => void
   setRunning: (v: boolean) => void
   setDead: () => void
+  clearDead: () => void
   setWon: () => void
 }
 
@@ -279,12 +281,23 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentPoints: 300,
     })),
 
+  // Reset player position and grid only, keep program intact
+  resetPlayerOnly: () =>
+    set((state) => ({
+      player: findStart(state.levelIndex),
+      grid: buildGrid(state.levelIndex),
+      running: false,
+      dead: false,
+      won: false,
+    })),
+
   setPlayer: (player) => set({ player }),
   setRunning: (running) => {
     set({ running })
     if (!running) set({ executingIndex: null })
   },
   setDead: () => set({ running: false, dead: true }),
+  clearDead: () => set({ dead: false }),
   setWon: () => {
     // finalize score and stop timer
     get().stopScoring()

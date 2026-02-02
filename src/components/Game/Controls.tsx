@@ -20,6 +20,7 @@ export default function Controls() {
     setRunning,
     resetProgram,
     resetPlayer,
+    resetPlayerOnly,
     quitLevel,
     setGrid,
     setExecutingIndex,
@@ -75,6 +76,10 @@ export default function Controls() {
             onDead: () => {
               setDead()
               setRunning(false)
+              // Show death screen for 1 second, then reset player position only (keep program)
+              setTimeout(() => {
+                resetPlayerOnly()
+              }, 1000)
             },
             onWin: () => {
               setWon()
@@ -87,6 +92,12 @@ export default function Controls() {
           })
 
           setRunning(false)
+          
+          // After run completes, reset player to start (unless won or dead - those handle their own reset)
+          const state = useGameStore.getState()
+          if (!state.won && !state.dead) {
+            resetPlayerOnly()
+          }
         }}
       >
          run

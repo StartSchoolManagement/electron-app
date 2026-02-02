@@ -25,11 +25,9 @@ export default class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    // Log error in development only
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[ErrorBoundary] Caught error:', error, errorInfo)
-    }
+    // Error caught by ErrorBoundary: error, errorInfo
   }
 
   handleReset = (): void => {
