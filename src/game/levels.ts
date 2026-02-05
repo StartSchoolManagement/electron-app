@@ -29,7 +29,6 @@ export const levels: Level[] = [
     maxData: 1,
     maxActions: 7,
     layout: [
-       
       '00100',
       '00900',
       '00100',
@@ -37,6 +36,7 @@ export const levels: Level[] = [
       '00800',
       '00100',
       '00700'
+      
     ]
   },
   {
@@ -157,13 +157,13 @@ export const levels: Level[] = [
   },{
     name: 'Level 10',
     allowedActionsCount: 7,
-    maxActions: 7,
+    maxActions: 8,
     maxData: 1,
     layout: [
-    'B000A40B09',
+    'B000A40B01',
     '1000010101',
     '1000010801',
-    '86666+6663',
+    '59668+6693',
     '0E00070F00',
     '0100010900',
     '0D00010100',

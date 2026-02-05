@@ -44,7 +44,7 @@ const ACTIONS: {
 ]
 
 export default function ActionBar() {
-  const { program, addNode, setNodeAt, insertNodeAt, levelIndex, executingIndex } = useGameStore()
+  const { program, addNode, setNodeAt, insertNodeAt, removeNodeAt, levelIndex, executingIndex } = useGameStore()
   const level = levels[levelIndex]
 
   const [picker, setPicker] = useState<PickerMode>(null)
@@ -162,6 +162,18 @@ export default function ActionBar() {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(48px, 1fr))',
               }}
             >
+              {/* Empty cell button - only show when editing an existing node */}
+              {editIndex !== null && program[editIndex] && (
+                <button
+                  onClick={() => {
+                    if (editIndex !== null) {
+                      removeNodeAt(editIndex)
+                      closeAll()
+                    }
+                  }}
+                  className="aspect-square w-12 rounded-md border border-slate-700 hover:border-cyan-400/40 flex items-center justify-center p-2"
+                />
+              )}
               {visibleActions.map((item, i) =>
                 item.node.type === 'if' ? (
                   <PickerButton

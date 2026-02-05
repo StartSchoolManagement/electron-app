@@ -46,16 +46,16 @@ export default function Controls() {
           1x
         </button>
         <button
-          className={`px-3 py-2 rounded-md text-xs font-semibold ${speed === 2 ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-300 hover:bg-slate-700/10'}`}
+          className={`px-3 py-2 rounded-md text-xs font-semibold ${speed === 4 ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-300 hover:bg-slate-700/10'}`}
           disabled={running}
-          onClick={() => setSpeed(2)}
+          onClick={() => setSpeed(4)}
         >
           2x
         </button>
         <button
-          className={`px-3 py-2 rounded-md text-xs font-semibold ${speed === 4 ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-300 hover:bg-slate-700/10'}`}
+          className={`px-3 py-2 rounded-md text-xs font-semibold ${speed === 8 ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-300 hover:bg-slate-700/10'}`}
           disabled={running}
-          onClick={() => setSpeed(4)}
+          onClick={() => setSpeed(8)}
         >
           4x
         </button>

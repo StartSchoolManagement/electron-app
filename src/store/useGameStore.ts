@@ -48,6 +48,7 @@ interface GameState {
   addNode: (node: ProgramNode) => void
   setNodeAt: (index: number, node: ProgramNode) => void
   insertNodeAt: (index: number, node: ProgramNode) => void
+  removeNodeAt: (index: number) => void
 
   resetProgram: () => void
   resetPlayer: () => void
@@ -143,6 +144,15 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (!program[index]) return
     const next = [...program]
     next[index] = node
+    set({ program: next })
+  },
+
+  // Remove node at index (makes slot empty)
+  removeNodeAt: (index) => {
+    const { program } = get()
+    if (index < 0 || index >= program.length) return
+    const next = [...program]
+    next.splice(index, 1)
     set({ program: next })
   },
 

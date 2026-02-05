@@ -30,12 +30,12 @@ export default function Electron({
 
   const rotate =
     direction === 'up'
-      ? 'rotate-45'
+      ? 0
       : direction === 'right'
-      ? 'rotate-[135deg]'
+      ? 90
       : direction === 'down'
-      ? 'rotate-[225deg]'
-      : 'rotate-[-45deg]'
+      ? 180
+      : -90
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -45,9 +45,18 @@ export default function Electron({
           carrying ? 'bg-cyan-500' : 'bg-yellow-500'
         } opacity-70`}
       />
-      <div
-        className={`w-3 h-3 ${rotate} bg-white shadow-[0_0_12px_rgba(34,211,238,0.9)]`}
-      />
+      <svg
+        width="14"
+        height="18"
+        viewBox="0 0 14 18"
+        style={{ transform: `rotate(${rotate}deg)` }}
+        className="drop-shadow-[0_0_6px_rgba(34,211,238,0.9)]"
+      >
+        <polygon
+          points="7,0 14,10 7,18 0,10"
+          fill="white"
+        />
+      </svg>
     </div>
   )
 }
