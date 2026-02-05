@@ -83,7 +83,10 @@ CREATE POLICY "Allow public insert access"
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
    ```
+
+   > **SUPABASE_SERVICE_ROLE_KEY** is found in Supabase Dashboard → Settings → API → "service_role" under Project API keys. This key is server-side only and must NEVER be prefixed with `NEXT_PUBLIC_`.
 
 3. **Important**: Never commit `.env.local` to version control
 
@@ -126,6 +129,7 @@ When deploying to Vercel or Netlify:
 2. Use the same variable names:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
 
 ### Vercel
 
@@ -141,5 +145,8 @@ When deploying to Vercel or Netlify:
 
 - The `anon` key is safe to expose in client-side code (it's designed for this)
 - Row Level Security (RLS) protects your data at the database level
-- Consider adding rate limiting for production deployments
+- The `service_role` key is used server-side only in `/api/submit-score` to insert scores
+- The leaderboard INSERT RLS policy has been removed — only the server API can write scores
+- Score validation (1–3000) is enforced both in the API route and via a DB CHECK constraint
+- Rate limiting (1 submission per IP per 30s) prevents spam
 - Never expose your `service_role` key in client-side code

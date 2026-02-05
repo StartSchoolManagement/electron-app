@@ -3,7 +3,6 @@
 import { create } from 'zustand'
 import { levels } from '@/game/levels'
 import { ProgramNode, PlayerState, Grid } from '@/game/types'
-import { supabase } from '@/lib/supabase'
 
 type Screen = 'start' | 'game'
 
@@ -172,12 +171,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ totalScore: totalScore + points, levelScores: [...levelScores, points] })
   },
 
-  // submit score to leaderboard
+  // submit score to leaderboard via server API
   submitScore: async () => {
     // don't submit twice - check and set flag immediately to prevent race conditions
     if (get().scoreSubmitted) return
     set({ scoreSubmitted: true })  // set immediately to block concurrent calls
-    
+
     if (typeof window === 'undefined') return
 
     const name = localStorage.getItem('playerName')?.trim()
@@ -186,8 +185,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     const email = localStorage.getItem('playerEmail')?.trim() || ''
     const { totalScore } = get()
     try {
-      const { error } = await supabase.from('leaderboard').insert({ name, email, score: totalScore })
-      if (error) throw error
+      const res = await fetch('/api/submit-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, score: totalScore }),
+      })
+      if (!res.ok) throw new Error('submit failed')
       // clean pending if present
       localStorage.removeItem('pendingScore')
     } catch {
@@ -204,9 +207,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (get().scoreSubmitted) return
     const raw = localStorage.getItem('pendingScore')
     if (!raw) return
-    
+
     set({ scoreSubmitted: true })  // set immediately to block concurrent calls
-    
+
     try {
       const pending = JSON.parse(raw) as { name?: string; email?: string; score?: number }
       if (!pending?.name || typeof pending?.score !== 'number') {
@@ -214,8 +217,12 @@ export const useGameStore = create<GameState>((set, get) => ({
         return
       }
       const email = pending.email || ''
-      const { error } = await supabase.from('leaderboard').insert({ name: pending.name, email, score: pending.score })
-      if (!error) {
+      const res = await fetch('/api/submit-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: pending.name, email, score: pending.score }),
+      })
+      if (res.ok) {
         localStorage.removeItem('pendingScore')
       } else {
         set({ scoreSubmitted: false })  // allow retry

@@ -4,7 +4,6 @@
 
 import { useState } from 'react'
 import { useGameStore } from '@/store/useGameStore'
-import LeaderBoard from './Leaderboard'
 
 export default function StartScreen() {
   const [name, setName] = useState('')
@@ -67,7 +66,6 @@ export default function StartScreen() {
           </a>
         </div>
 
-        <LeaderBoard />
       </div>
     </div>
   )
