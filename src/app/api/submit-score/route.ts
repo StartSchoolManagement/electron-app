@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-server'
+import { getSupabaseAdmin } from '@/lib/supabase-server'
 
 const MAX_LEVELS = 10
 const MAX_SCORE_PER_LEVEL = 300
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Insert via service role (bypasses RLS)
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from('leaderboard')
     .insert({ name: name.trim().slice(0, 100), email: sanitizedEmail, score })
 
