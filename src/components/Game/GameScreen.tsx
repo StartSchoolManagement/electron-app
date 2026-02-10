@@ -8,9 +8,10 @@ import Grid from './Grid'
 import ActionBar from './ActionBar'
 import Controls from './Controls'
 import VictoryModal from './VictoryModal'
+import QuitModal from './QuitModal'
 
 export default function GameScreen() {
-  const { levelIndex, dead, won } = useGameStore()
+  const { levelIndex, dead, won, showQuitModal } = useGameStore()
   const level = levels[levelIndex]
 
   return (
@@ -36,6 +37,7 @@ export default function GameScreen() {
       <Controls />
 
       {won && <VictoryModal />}
+      {showQuitModal && <QuitModal />}
     </div>
   )
 }

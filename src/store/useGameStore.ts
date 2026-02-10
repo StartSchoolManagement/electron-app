@@ -43,6 +43,12 @@ interface GameState {
   submitScore: () => Promise<void>
   submitPending: () => Promise<void>
 
+  // quit modal
+  showQuitModal: boolean
+  showQuitConfirm: () => void
+  confirmQuit: () => void
+  cancelQuit: () => void
+
   setScreen: (s: Screen) => void
 
   addNode: (node: ProgramNode) => void
@@ -107,6 +113,32 @@ export const useGameStore = create<GameState>((set, get) => ({
   levelScores: [],
   scoringIntervalId: null,
   scoreSubmitted: false,
+  showQuitModal: false,
+
+  // Show quit confirmation modal
+  showQuitConfirm: () => {
+    set({ running: false, showQuitModal: true })
+  },
+
+  // Actually quit after confirmation
+  confirmQuit: () => {
+    const state = get()
+    state.finalizeLevelScore(1)
+
+    // If we are beyond level 1, attempt to submit immediately
+    if (state.levelIndex > 0) {
+      state.submitScore()
+    }
+
+    set({ screen: 'start', showQuitModal: false })
+    get().resetProgram()
+    get().resetPlayer()
+  },
+
+  // Cancel quit and continue playing
+  cancelQuit: () => {
+    set({ showQuitModal: false })
+  },
 
   setScreen: (screen) => {
     set({ screen })
@@ -243,19 +275,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   // quit out to start screen and add points (set level score to 1 on quit)
+  // Now shows confirmation modal first
   quitLevel: () => {
-    // finalize with 1 point for the current level
-    const state = get()
-    state.finalizeLevelScore(1)
-
-    // If we are beyond level 1, attempt to submit immediately; do not upload if quitting at level 1
-    if (state.levelIndex > 0) {
-      state.submitScore()
-    }
-
-    set({ screen: 'start' })
-    get().resetProgram()
-    get().resetPlayer()
+    get().showQuitConfirm()
   },
 
   // clear won flag so UI can continue
