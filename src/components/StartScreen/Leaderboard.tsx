@@ -9,6 +9,8 @@ import { useGameStore } from '@/store/useGameStore'
 interface Entry {
   name: string
   score: number
+  level_reached: number
+  levels_completed: number
 }
 
 export default function LeaderBoard() {
@@ -20,8 +22,7 @@ export default function LeaderBoard() {
     setLoading(true)
     const { data } = await supabase
       .from('leaderboard')
-      .select('name, score')
-      .gt('score', 0)
+      .select('name, score, level_reached, levels_completed')
       .order('score', { ascending: false })
       .limit(10)
 
@@ -68,10 +69,11 @@ export default function LeaderBoard() {
         {rows.map((r, i) => (
           <div
             key={`${r.name}-${i}`}
-            className="grid grid-cols-[24px_1fr_auto] items-center text-xs text-slate-300"
+            className="grid grid-cols-[24px_1fr_auto_auto] items-center gap-2 text-xs text-slate-300"
           >
             <span className="text-cyan-400">{i + 1}</span>
             <span className="truncate">{r.name}</span>
+            <span className="text-slate-500">Lv{r.level_reached}</span>
             <span className="font-mono text-cyan-200">
               {r.score}
             </span>

@@ -46,7 +46,7 @@ interface GameState {
   // quit modal
   showQuitModal: boolean
   showQuitConfirm: () => void
-  confirmQuit: () => void
+  confirmQuit: () => Promise<void>
   cancelQuit: () => void
 
   setScreen: (s: Screen) => void
@@ -121,14 +121,15 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   // Actually quit after confirmation
-  confirmQuit: () => {
+  confirmQuit: async () => {
     const state = get()
-    state.finalizeLevelScore(1)
-
-    // If we are beyond level 1, attempt to submit immediately
-    if (state.levelIndex > 0) {
-      state.submitScore()
+    // Only finalize if the current level wasn't already won
+    if (!state.won) {
+      state.finalizeLevelScore(1)
     }
+
+    // Always submit — even from level 1
+    await state.submitScore()
 
     set({ screen: 'start', showQuitModal: false })
     get().resetProgram()
@@ -215,9 +216,8 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   // submit score to leaderboard via server API
   submitScore: async () => {
-    // don't submit twice - check and set flag immediately to prevent race conditions
     if (get().scoreSubmitted) return
-    set({ scoreSubmitted: true })  // set immediately to block concurrent calls
+    set({ scoreSubmitted: true })
 
     if (typeof window === 'undefined') return
 
@@ -225,21 +225,26 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (!name) return
 
     const email = localStorage.getItem('playerEmail')?.trim() || ''
-    const { totalScore } = get()
+    const { totalScore, levelIndex, levelScores } = get()
+    const payload = {
+      name,
+      email,
+      score: totalScore,
+      level_reached: levelIndex + 1,
+      levels_completed: levelScores.filter((s) => s > 1).length,
+    }
     try {
       const res = await fetch('/api/submit-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, score: totalScore }),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) throw new Error('submit failed')
-      // clean pending if present
       localStorage.removeItem('pendingScore')
     } catch {
-      // if failed, save locally so we can retry on next load
-      set({ scoreSubmitted: false })  // allow retry
+      set({ scoreSubmitted: false })
       try {
-        localStorage.setItem('pendingScore', JSON.stringify({ name, email, score: totalScore, ts: Date.now() }))
+        localStorage.setItem('pendingScore', JSON.stringify({ ...payload, ts: Date.now() }))
       } catch { /* localStorage may be unavailable */ }
     }
   },
@@ -250,27 +255,35 @@ export const useGameStore = create<GameState>((set, get) => ({
     const raw = localStorage.getItem('pendingScore')
     if (!raw) return
 
-    set({ scoreSubmitted: true })  // set immediately to block concurrent calls
+    set({ scoreSubmitted: true })
 
     try {
-      const pending = JSON.parse(raw) as { name?: string; email?: string; score?: number }
+      const pending = JSON.parse(raw) as {
+        name?: string; email?: string; score?: number;
+        level_reached?: number; levels_completed?: number
+      }
       if (!pending?.name || typeof pending?.score !== 'number') {
         set({ scoreSubmitted: false })
         return
       }
-      const email = pending.email || ''
       const res = await fetch('/api/submit-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: pending.name, email, score: pending.score }),
+        body: JSON.stringify({
+          name: pending.name,
+          email: pending.email || '',
+          score: pending.score,
+          level_reached: pending.level_reached ?? 1,
+          levels_completed: pending.levels_completed ?? 0,
+        }),
       })
       if (res.ok) {
         localStorage.removeItem('pendingScore')
       } else {
-        set({ scoreSubmitted: false })  // allow retry
+        set({ scoreSubmitted: false })
       }
     } catch {
-      set({ scoreSubmitted: false })  // allow retry
+      set({ scoreSubmitted: false })
     }
   },
 
@@ -338,9 +351,14 @@ export const useGameStore = create<GameState>((set, get) => ({
   setDead: () => set({ running: false, dead: true }),
   clearDead: () => set({ dead: false }),
   setWon: () => {
-    // finalize score and stop timer
     get().stopScoring()
     get().finalizeLevelScore()
     set({ running: false, won: true })
+
+    // Auto-submit on last level since there's no "continue"
+    const { levelIndex } = get()
+    if (levelIndex >= levels.length - 1) {
+      get().submitScore()
+    }
   },
 }))

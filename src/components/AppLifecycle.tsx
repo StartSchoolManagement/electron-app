@@ -12,27 +12,27 @@ export default function AppLifecycle() {
 
     function onBeforeUnload() {
       const state = useGameStore.getState()
-      const { totalScore, scoreSubmitted, screen, won } = state
+      const { totalScore, scoreSubmitted, screen, won, levelIndex, levelScores } = state
 
       if (scoreSubmitted) return
 
       // If we're in a game and haven't won, treat this as a quit: award 1 point for the current level
       let pending = totalScore
       if (screen === 'game' && !won) {
-        // don't upload anything if quitting from level 1
-        if (state.levelIndex > 0) {
-          pending = totalScore + 1
-        } else {
-          return
-        }
+        pending = totalScore + 1
       }
-
-      if (pending <= 0) return
 
       try {
         const name = localStorage.getItem('playerName') || ''
         const email = localStorage.getItem('playerEmail') || ''
-        localStorage.setItem('pendingScore', JSON.stringify({ name, email, score: pending, ts: Date.now() }))
+        localStorage.setItem('pendingScore', JSON.stringify({
+          name,
+          email,
+          score: pending,
+          level_reached: levelIndex + 1,
+          levels_completed: levelScores.filter((s) => s > 1).length,
+          ts: Date.now(),
+        }))
       } catch { /* localStorage may be unavailable */ }
     }
 
